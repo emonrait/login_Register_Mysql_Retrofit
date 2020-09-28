@@ -4,7 +4,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
-    private static final String BASE_URL = "http://192.168.0.6/User_Login_Register_Mysql/";
+    private static final String BASE_URL = "https://prosperous-progress.000webhostapp.com/logintest/";
     private static Retrofit retrofit = null;
 
 
