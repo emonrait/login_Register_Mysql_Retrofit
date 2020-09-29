@@ -42,41 +42,8 @@ public class LoginActivity extends AppCompatActivity {
         appCompatButtonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = textInputEditTextEmail.getText().toString().trim();
-                String password = textInputEditTextPassword.getText().toString().trim();
+                perFormLogin();
 
-                Call<ApiResponse> call = ApiClient.getApiClient().create(ApiInterface.class).logininInformation(email, password);
-
-                call.enqueue(new Callback<ApiResponse>() {
-                    @Override
-                    public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
-                        if (response.code() == 200) {
-                            if (response.body().getStatus() == "ok") {
-                                if (response.body().getResult_code() == 1) {
-                                    String name = response.body().getName();
-                                    Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                                    intent.putExtra("name", name);
-                                    startActivity(intent);
-                                    Snackbar.make(scrollView, "login Ok", Snackbar.LENGTH_LONG).show();
-                                    emptyInputEditText();
-                                    finish();
-                                }
-
-                            } else {
-                                Snackbar.make(scrollView, getString(R.string.error_valid_email_password), Snackbar.LENGTH_LONG).show();
-                            }
-
-                        } else {
-                            Snackbar.make(scrollView, getString(R.string.error_valid_email_password), Snackbar.LENGTH_LONG).show();
-
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ApiResponse> call, Throwable t) {
-
-                    }
-                });
             }
         });
 
@@ -85,6 +52,50 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
+            }
+        });
+
+
+    }
+
+    private void perFormLogin() {
+        String email = textInputEditTextEmail.getText().toString().trim();
+        String password = textInputEditTextPassword.getText().toString().trim();
+
+        Call<ApiResponse> call = ApiClient.getApiClient().create(ApiInterface.class).logininInformation(email, password);
+
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (response.code() == 200) {
+                    if (response.body().getStatus() == "ok") {
+                        if (response.body().getResult_code() == 1) {
+                            String name = response.body().getName();
+                            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                            intent.putExtra("name", name);
+                            startActivity(intent);
+                            emptyInputEditText();
+                            //finish();
+                            Snackbar.make(scrollView, "Login Success....", Snackbar.LENGTH_LONG).show();
+
+
+                        } else {
+                            Snackbar.make(scrollView, "Login Failed....", Snackbar.LENGTH_LONG).show();
+                        }
+
+                    } else {
+                        Snackbar.make(scrollView, "Something went wrong....", Snackbar.LENGTH_LONG).show();
+                    }
+
+                } else {
+                    Snackbar.make(scrollView, "Something went wrong....", Snackbar.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                Snackbar.make(scrollView, "Something went wrong....", Snackbar.LENGTH_LONG).show();
+
             }
         });
 

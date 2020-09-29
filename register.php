@@ -13,7 +13,7 @@ if($con){
 	$result=mysqli_query($con,$sql);
 	
 	if(mysqli_num_rows($result)>0){
-		$status="Exist";
+		$status="ok";
 		$result_code="0";
 		echo json_encode(array('status'=>$status,'result_code'=>$result_code));
 	}else{

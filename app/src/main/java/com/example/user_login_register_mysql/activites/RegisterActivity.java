@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 
 import com.example.user_login_register_mysql.R;
@@ -72,6 +73,7 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         getSupportActionBar().hide();
+        appCompatButtonRegister = findViewById(R.id.appCompatButtonRegister);
 
         initViews();
 
@@ -99,32 +101,30 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void performSignup() {
-        String name = textInputEditTextName.getText().toString();
-        String email = textInputEditTextName.getText().toString();
-        String mobile = textInputEditTextName.getText().toString();
-        String address = textInputEditTextName.getText().toString();
-        String password = textInputEditTextName.getText().toString();
+        String name = textInputEditTextName.getText().toString().trim();
+        String email = textInputEditTextEmail.getText().toString().trim();
+        String mobile = textInputEditTextMobile.getText().toString().trim();
+        String address = textInputEditTextAddress.getText().toString().trim();
+        String password = textInputEditTextPassword.getText().toString().trim();
 
         Call<ApiResponse> call = ApiClient.getApiClient().create(ApiInterface.class).signinInformation(name, email, mobile, address, password);
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
-                Snackbar.make(scrollView, "Something went wrong....", Snackbar.LENGTH_LONG).show();
                 if (response.code() == 200) {
                     if (response.body().getStatus().equals("ok")) {
                         if (response.body().getResult_code() == 1) {
+                            //Toast toast = Toast.makeText(getApplicationContext(), "Registration Success....", Toast.LENGTH_SHORT);
                             Snackbar.make(scrollView, "Registration Success....", Snackbar.LENGTH_LONG).show();
                             emptyInputEditText();
                             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                             onBackPressed();
                             finish();
 
-
                         } else {
                             Snackbar.make(scrollView, "User Already Exist....", Snackbar.LENGTH_LONG).show();
 
                         }
-
 
                     } else {
                         Snackbar.make(scrollView, "Something went wrong....", Snackbar.LENGTH_LONG).show();
@@ -139,53 +139,14 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
+                //Snackbar.make(scrollView, "Something went wrong....", Snackbar.LENGTH_LONG).show();
 
             }
         });
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_GALLERY_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                startActivityForResult(intent, REQUEST_GALLERY_CODE);
-
-            } else {
-                Snackbar.make(scrollView, "You dont permission to access the file", Snackbar.LENGTH_LONG).show();
-            }
-            return;
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == REQUEST_GALLERY_CODE && resultCode == RESULT_OK) {
-            Uri uri = data.getData();
-            CropImage.activity(uri).setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1, 1)
-                    .start(this);
-        }
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-                Uri resulturi = result.getUri();
-                appCompatImageView.setImageURI(resulturi);
-
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
-
-            }
-
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
     private void initViews() {
         scrollView = (ScrollView) findViewById(R.id.scrollview);
-
         textInputLayoutName = (TextInputLayout) findViewById(R.id.textInputLayoutName);
         textInputLayoutEmail = (TextInputLayout) findViewById(R.id.textInputLayoutEmail);
         textInputLayoutPassword = (TextInputLayout) findViewById(R.id.textInputLayoutPassword);
@@ -198,49 +159,11 @@ public class RegisterActivity extends AppCompatActivity {
         textInputEditTextConfirmPassword = (TextInputEditText) findViewById(R.id.textInputEditTextConfirmPassword);
         textInputEditTextMobile = (TextInputEditText) findViewById(R.id.textInputEditTextMobile);
         textInputEditTextAddress = (TextInputEditText) findViewById(R.id.textInputEditTextAddress);
-        appCompatButtonRegister = (AppCompatButton) findViewById(R.id.appCompatButtonRegister);
+        //appCompatButtonRegister = (AppCompatButton) findViewById(R.id.appCompatButtonRegister);
         appCompatTextViewLoginLink = (AppCompatTextView) findViewById(R.id.appCompatTextViewLoginLink);
         appCompatImageView = (AppCompatImageView) findViewById(R.id.addPhoto);
         inputValidation = new InputValidation(activity);
 
-    }
-
-
-    private void postDataToSQLite() {
-        if (!inputValidation.isInputEditTextFilled(textInputEditTextName, textInputLayoutName, getString(R.string.error_message_name))) {
-            return;
-        }
-        if (!inputValidation.isInputEditTextFilled(textInputEditTextEmail, textInputLayoutEmail, getString(R.string.error_message_email))) {
-            return;
-        }
-        if (!inputValidation.isInputEditTextEmail(textInputEditTextEmail, textInputLayoutEmail, getString(R.string.error_message_email))) {
-            return;
-        }
-        if (!inputValidation.isInputEditTextMobile(textInputEditTextMobile, textInputLayoutMobile, "Enter Mobile No")) {
-            return;
-        }
-        if (!inputValidation.isInputEditTextFilled(textInputEditTextAddress, textInputLayoutAddress, "Enter Address")) {
-            return;
-        }
-        if (!inputValidation.isInputEditTextFilled(textInputEditTextPassword, textInputLayoutPassword, getString(R.string.error_message_password))) {
-            return;
-        }
-        if (!inputValidation.isInputEditTextMatches(textInputEditTextPassword, textInputEditTextConfirmPassword,
-                textInputLayoutConfirmPassword, getString(R.string.error_password_match))) {
-            return;
-        }
-        if (!inputValidation.isInputEditTextFilled(textInputEditTextMobile, textInputLayoutMobile, "Enter Mobile No")) {
-            return;
-        }
-
-    }
-
-    public static byte[] imagetiByte(AppCompatImageView ImageView) {
-        Bitmap bitmap = ((BitmapDrawable) ImageView.getDrawable()).getBitmap();
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] bytes = stream.toByteArray();
-        return bytes;
     }
 
 
@@ -252,5 +175,10 @@ public class RegisterActivity extends AppCompatActivity {
         textInputEditTextMobile.setText(null);
         textInputEditTextAddress.setText(null);
         appCompatImageView.setImageResource(R.mipmap.ic_launcher_round);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }
